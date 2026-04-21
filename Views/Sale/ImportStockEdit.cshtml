@@ -1,0 +1,216 @@
+﻿@model WebStore.Models.Entities.ImportStockMasterViewModel
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="row">
+        <div class="col-4">
+            <form id="formAdmin" method="post" action="/sale/ImportStockedit">
+                <input type="hidden" name="Id" id="id" value="@Model?.ImportStockMaster.Id" />
+                <div class="field-edit">
+                    <span>Ngày nhập</span>
+                    <input type="date" class="form-control SelectDate" name="VoucherDate" id="voucherDate"
+                           value="@(Model?.ImportStockMaster.VoucherDate.HasValue == true ? Model.ImportStockMaster.VoucherDate.Value.ToString("yyyy-MM-dd") : "")" />
+                </div>
+                <div class="field-edit">
+                    <span>Nhà cung cấp</span>
+                    <select class="form-control select2 SelectDate" name="SupplierId" id="subId">
+                        <option value=""></option>
+                        @foreach (var sub in Model.Suppliers)
+                        {
+                            var selectedAttr = Model.ImportStockMaster.SupplierId == sub.Id ? "selected" : "";
+                            <option value="@sub.Id" @selectedAttr>@sub.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-8">
+            <div class="field-edit">
+                <span>Sản phẩm (<span class="required-span">*</span>)</span>
+                <select id="productSelect" class="form-control select2 SelectDate" name="productId" required>
+                    <option value=""></option>
+                    @foreach (var sub in Model.Products)
+                    {
+                        <option value="@sub.Id">@sub.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="field-edit">
+                        <span>Đơn giá nhập (<span class="required-span">*</span>)</span>
+                        <input type="number" min="0" class="form-control TextBox" name="price" id="price" required />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="field-edit">
+                        <span>Số lượng nhập (<span class="required-span">*</span>)</span>
+                        <input type="number" min="0" class="form-control TextBox" name="quantity" id="quantity" required />
+                    </div>
+                </div>
+                <div class="field-edit">
+                    <button type="button" class="Button2" id="btnCreateProduct"><i class="fa fa-plus"></i> Thêm sản phẩm</button>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá nhập</th>
+                        <th>Thành tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="bodyProduct">
+                    @foreach (var item in Model.ImportStockDetails)
+                    {
+                        <tr class="data-row" data-id="@item.Id">
+                            <td>@item.Product?.Name</td>
+                            <td class="text-center">@item.Quantity?.ToString("N0")</td>
+                            <td class="text-center">@item.Price?.ToString("N0")</td>
+                            <td class="text-center">@item.TotalMoney?.ToString("N0")</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btnDeleteRow" data-id="@item.Id" title="Xóa">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+            $(function () {
+             initSelect2('.select2');
+             $('#productSelect').on('change', function () {
+                var productId = $(this).val();
+                if (productId) {
+                    $.ajax({
+                        url: '/sale/ImportStockEdit/LoadPriceProduct', 
+                        type: 'GET',
+                        data: { id: productId },
+                        success: function (response) {
+                            console.log(response)
+                            $('#price').val(response.price);
+                        },
+                        error: function () {
+                            alert("Không lấy được giá sản phẩm.");
+                        }
+                    });
+                } else {
+                    $('#price').val('');
+                }
+            });
+
+             $('#btnCreateProduct').on('click', function () {
+                var productId = $('#productSelect').val();
+                var quantity = $('#quantity').val();
+                var idMaster = $('#id').val();
+                var voucherDate = $('#voucherDate').val();
+                var subId = $('#subId').val();
+                var priceInput = $('#price').val();
+                if (!productId) {
+                    alert("Vui lòng chọn sản phẩm");
+                    return;
+                }
+                if (!quantity) {
+                    alert("Vui lòng chọn số lượng");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/sale/ImportStockEdit/AddProduct', // Route đến controller
+                    type: 'POST',
+                    data: { productId: productId, quantity : quantity,idMaster : idMaster, voucherDate : voucherDate, subId : subId,priceInput : priceInput},
+                    success: function (response) {
+                        reloadAdminTable("/sale/ImportStocklist/partialTableImportStock");
+                        // Chèn hàng mới vào bảng
+                        $('#bodyProduct').append(`
+                            <tr>
+                                <td>${response.productName}</td>
+                                <td class="text-center">${response.quantity}</td>
+                                <td class="text-center">${response.price}</td>
+                                <td class="text-center">${response.money}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btnDeleteRow" data-id="${response.iddetail}" title="Xóa">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        $('#id').val(response.idImportStockMasterId);
+                    },
+                    error: function () {
+                        alert("Đã xảy ra lỗi khi thêm sản phẩm");
+                    }
+                });
+            });
+
+            $(document).off('click', '.btnDeleteRow').on('click', '.btnDeleteRow', function () {
+                var button = $(this);
+                var id = button.data('id');
+
+                if (!id) {
+                    // Nếu không có id (chưa lưu DB), chỉ cần xóa trên giao diện
+                    button.closest('tr').remove();
+                    recalculateTotalsFromTable();
+                    return;
+                }
+
+                if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+                    $.ajax({
+                        url: '/sale/ImportStockEdit/DeleteProduct',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (response) {
+                            button.closest('tr').remove(); // Xóa dòng trong bảng
+                            recalculateTotalsFromTable();
+                            reloadAdminTable("/sale/ImportStocklist/partialTableImportStock");
+                        },
+                        error: function () {
+                            alert("Xóa thất bại!");
+                        }
+                    });
+                }
+            });
+
+            // Xử lý submit form bằng ajax
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; // Lấy DOM element form
+                var formData = new FormData(form); // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,  // Bắt buộc cho FormData
+                    processData: false,  // Bắt buộc cho FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/sale/ImportStocklist/partialTableImportStock");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

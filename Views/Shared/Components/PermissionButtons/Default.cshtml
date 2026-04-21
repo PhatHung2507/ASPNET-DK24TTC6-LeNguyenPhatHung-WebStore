@@ -1,0 +1,22 @@
+﻿@model WebStore.ViewComponents.PermissionActionViewModel
+
+<div class="MenuContext fl">
+    @if (Model.CanCreate)
+    {
+        <button class="btn-open-modal Button btn-insert Button2" data-url="@Model.EditUrl" data-target="#@Model.Modal" data-title="Tạo -  @Model.Name">
+            <i class="fa fa-plus icon"></i>Tạo
+        </button>
+    }
+    @if (Model.CanEdit)
+    {
+        <button class="btn-open-modal Button btn-insert Button1" data-url="@Model.EditUrl" data-target="#@Model.Modal" data-title="Cập nhật - @Model.Name">
+            <i class="fa fa-edit icon"></i>Cập nhật
+        </button>
+    }
+    @if (Model.CanDelete)
+    {
+        <button class="Button btn-delete Button4">
+            <i class="fa fa-trash icon"></i>Xóa
+        </button>
+    }
+</div>

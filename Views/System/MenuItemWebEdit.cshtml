@@ -1,0 +1,123 @@
+﻿@model WebStore.Models.Entities.MenuItemByCategoryViewModel
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <form id="formAdmin" method="post" action="/system/menuitemwebedit">
+                <input type="hidden" name="Id" value="@Model.MenuItemWeb.Id" />
+                <div class="row col-space-10">
+                    <div class="col-12">
+                        <div class="field-edit">
+                            <span>Tên menu (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Name" value="@Model.MenuItemWeb.Name" required />
+                        </div>
+                        <div class="field-edit">
+                            <span>Danh mục menu (<span class="required-span">*</span>)</span>
+                            <select class="form-control select2 SelectDate" name="MenuCategoryWebId" required>
+                                <option value=""></option>
+                                @foreach (var category in Model.MenuCategories)
+                                {
+                                    var selectedAttr = Model.MenuItemWeb.MenuCategoryWebId == category.Id ? "selected" : "";
+                                    <option value="@category.Id" @selectedAttr>@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field-edit">
+                            <span>List Url (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Url" value="@Model.MenuItemWeb.Url" required />
+                        </div>
+                        <div class="field-edit">
+                            <span>Edit Url</span>
+                            <input type="text" class="form-control TextBox" name="EditUrl" value="@Model.MenuItemWeb.EditUrl" />
+                        </div>
+                        <div class="field-edit">
+                            <span>Sắp xếp (<span class="required-span">*</span>)</span>
+                            <input type="number" min="0" class="form-control TextBox" name="SortOrder" value="@Model.MenuItemWeb.SortOrder" required />
+                        </div>
+                        <div class="field-edit">
+                            <div class="field-group">
+                                <input type="checkbox" name="Visible" value="true" @(Model?.MenuItemWeb.Visible == true ? "checked" : "") />
+                                <label>Hiển thị</label>
+                            </div>
+                        </div>
+                        <div class="row col-space-10">
+                            <div class="col-3">
+                                <div class="field-edit">
+                                    <div class="field-group">
+                                        <input type="checkbox" name="See" value="true" @(Model?.MenuItemWeb.See == true ? "checked" : "") />
+                                        <label>Xem</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="field-edit">
+                                    <div class="field-group">
+                                        <input type="checkbox" name="New" value="true" @(Model?.MenuItemWeb.New == true ? "checked" : "") />
+                                        <label>Thêm</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="field-edit">
+                                    <div class="field-group">
+                                        <input type="checkbox" name="Edit" value="true" @(Model?.MenuItemWeb.Edit == true ? "checked" : "") />
+                                        <label>Sửa</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="field-edit">
+                                    <div class="field-group">
+                                        <input type="checkbox" name="Remove" value="true" @(Model?.MenuItemWeb.Remove == true ? "checked" : "") />
+                                        <label>Xóa</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            initSelect2('.select2');
+
+            // Xử lý submit form bằng ajax
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; // Lấy DOM element form
+                var formData = new FormData(form); // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,  // Bắt buộc cho FormData
+                    processData: false,  // Bắt buộc cho FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/system/menuitemweblist/partialTableMenuitemWeb");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

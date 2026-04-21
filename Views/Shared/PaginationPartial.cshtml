@@ -1,0 +1,60 @@
+﻿@model dynamic
+
+@{
+    int currentPage = Model.PageNumber;
+    int totalPages = Model.TotalPages;
+    int pageDisplayCount = 5;
+
+    int startPage = ((currentPage - 1) / pageDisplayCount) * pageDisplayCount + 1;
+    int endPage = Math.Min(startPage + pageDisplayCount - 1, totalPages);
+
+    string ajaxFunction = Model.ReloadFunctionName ?? "reloadAdminTable";
+    string baseUrl = Model.BaseUrl ?? "#";
+}
+
+<div class="pagination">
+
+    @* Nút « (lùi 1 trang khối) *@
+    @if (startPage > 1)
+    {
+        <a href="#"
+           data-pagination-link
+           data-page="@(startPage - 1)"
+           data-pagesize="@Model.PageSize"
+           data-baseurl="@baseUrl"
+           data-reloadfunction="@ajaxFunction">
+            «
+        </a>
+    }
+
+    @* Các trang *@
+    @for (int i = startPage; i <= endPage; i++)
+    {
+        string cssClass = i == currentPage ? "page-link active" : "page-link";
+
+        <a href="#"
+           class="@cssClass"
+           data-pagination-link
+           data-page="@i"
+           data-pagesize="@Model.PageSize"
+           data-baseurl="@baseUrl"
+           data-reloadfunction="@ajaxFunction">
+            @i
+        </a>
+    }
+
+    @* Nút » (tiến 1 trang khối) *@
+    @if (endPage < totalPages)
+    {
+        <a href="#"
+           data-pagination-link
+           data-page="@(endPage + 1)"
+           data-pagesize="@Model.PageSize"
+           data-baseurl="@baseUrl"
+           data-reloadfunction="@ajaxFunction">
+            »
+        </a>
+    }
+
+    <span class="total">Total: @Model.TotalItems</span>
+</div>

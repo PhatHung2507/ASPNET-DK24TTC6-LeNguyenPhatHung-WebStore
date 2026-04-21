@@ -1,0 +1,41 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.Product>
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Tên</th>
+                <th>Danh mục</th>
+                <th>Giá nhập</th>
+                <th>Giá bán</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td class="text-center">@item.Code</td>
+                    <td>@item.Name</td>
+                    <td class="text-center">@item.ProductCategory.Name</td>
+                    <td class="text-center">@item.PurchasePrice?.ToString("N0")</td>
+                    <td class="text-center">@item.SalePrice?.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@{
+    Model.BaseUrl = "/list/productlist/partialTableProduct";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+@await Html.PartialAsync("PaginationPartial", Model)
+
+
+

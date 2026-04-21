@@ -1,0 +1,105 @@
+﻿@model List<WebStore.Models.Entities.OrdersMaster>
+
+@{
+    Layout = "_LayoutUser";
+}
+<div class="clear30"></div>
+<div class="wrap-container">
+    <h4>Đơn hàng của bạn</h4>
+    <div class="clear20"></div>
+    @if (Model != null && Model.Any())
+    {
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Ngày đặt</th>
+                    <th>Số lượng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt = 1; // Biến đếm số thứ tự
+                }
+                @foreach (var order in Model)
+                {
+                    <tr class="order-master-row">
+                        <td>@stt</td> <!-- Cột STT -->
+                        <td>@order.VoucherDate?.ToString("dd/MM/yyyy")</td>
+                        <td>@order.TotalQuantity</td>
+                        <td>@order.NeedPayment?.ToString("N0") ₫</td>
+                        <td>@order.Status</td>
+                    </tr>
+                    <tr class="order-detail-row">
+                        <td colspan="5" style="padding: 0;">
+                            <table class="order-detail-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                <tbody>
+                                    @foreach (var detail in order.OrdersDetail)
+                                    {
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@detail.Product?.Name</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@detail.Price?.ToString("N0") ₫</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@detail.Quantity</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd;">@detail.TotalMoney?.ToString("N0") ₫</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    stt++;
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Bạn chưa có đơn hàng nào.</p>
+    }
+</div>
+<div class="clear30"></div>
+
+<style>
+    .wrap-container h4 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .orders-table th, .orders-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .orders-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+    .order-detail-table th, .order-detail-table td {
+        text-align: center;
+    }
+
+    .order-detail-table th {
+        background-color: #f5f5f5;
+        font-weight: normal;
+    }
+
+    .order-detail-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+
+    /* Tách biệt chi tiết đơn hàng bằng background nhẹ */
+    .order-detail-row td {
+        background-color: #fafafa;
+        padding: 0 !important;
+    }
+</style>

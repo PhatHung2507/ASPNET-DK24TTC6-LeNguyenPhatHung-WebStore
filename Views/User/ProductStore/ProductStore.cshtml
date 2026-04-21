@@ -1,0 +1,260 @@
+﻿@model WebStore.Models.Entities.ProductViewModel
+@using Microsoft.AspNetCore.Http
+@{
+    Layout = "_LayoutUser";
+}
+
+<div class="clear30"></div>
+<div class="wrap-container">
+    <div class="product-detail">
+        <div class="product-images">
+            <div class="main-image">
+                <img src="@Model.Product.ImageOutstanding" alt="Ảnh chính" />
+            </div>
+            <div class="thumbnail-list">
+                @foreach (var item in @Model.Product.ProductImage)
+                {
+                    <img src="@item.Url" alt="Ảnh" />
+                }
+            </div>
+
+        </div>
+        <div class="product-info">
+            <h1 style="color:red; font-weight:bold;">
+                @Model.Product.Name
+            </h1>
+            <div class="rating">
+                <span>
+                    @{
+                        int fullStars = (int)Math.Floor(Model.AverageRating);
+                        for (int i = 0; i < fullStars; i++)
+                        {
+                            @Html.Raw("⭐")
+                        }
+                        for (int i = fullStars; i < 5; i++)
+                        {
+                            @Html.Raw("⭐")
+                        }
+                    }
+                </span>
+                <span>@Model.SoldQuantity đã bán</span>
+            </div>
+            <div class="price">
+                <span class="current">@Model.Product.SalePrice?.ToString("N0") đ</span>
+            </div>
+            <div class="rating">
+                <span>Còn @Model.Stock sản phẩm</span>
+            </div>
+
+            <div class="quantity">
+                <button id="dow">-</button>
+                <input type="text" value="1" id="quantityorder" />
+                <button id="up">+</button>
+                <button class="add-to-cart" id="btnAddToCart">+ Thêm giỏ hàng</button>
+            </div>
+            <div class="clear30"></div>
+            <div class="product-description">
+                <h2>Chi tiết sản phẩm</h2>
+                @Html.Raw(Model.Product.Description)
+            </div>
+        </div>
+    </div>
+    <div class="clear30"></div>
+    <h5>Đánh giá sản phẩm</h5>
+    <div class="clear30"></div>
+    <div class="review-section">
+        <div class="review-flex">
+            <!-- Tổng điểm -->
+            <div class="review-score">
+                <div class="rating-number">@Model.AverageRating</div>
+                <div class="stars">★★★★★</div>
+            </div>
+
+            <!-- Biểu đồ đánh giá -->
+            <div class="rating-breakdown stars">
+                <div>★★★★★ <div class="bar"><div class="fill" style="width:@Model.Percent1%"></div></div> <span>@Model.Rating1</span></div>
+                <div>★★★★☆ <div class="bar"><div class="fill" style="width:@Model.Percent2%"></div></div> <span>@Model.Rating2</span></div>
+                <div>★★★☆☆ <div class="bar"><div class="fill" style="width:@Model.Percent3%"></div></div> <span>@Model.Rating3</span></div>
+                <div>★★☆☆☆ <div class="bar"><div class="fill" style="width:@Model.Percent4%"></div></div> <span>@Model.Rating4</span></div>
+                <div>★☆☆☆☆ <div class="bar"><div class="fill" style="width:@Model.Percent5%"></div></div> <span>@Model.Rating5</span></div>
+            </div>
+
+            <!-- Ô nhập đánh giá -->
+            <div class="review-form">
+                <form>
+                    <select id="rating">
+                        <option value="5">★★★★★ - Rất tốt</option>
+                        <option value="4">★★★★☆ - Tốt</option>
+                        <option value="3">★★★☆☆ - Trung bình</option>
+                        <option value="2">★★☆☆☆ - Kém</option>
+                        <option value="1">★☆☆☆☆ - Rất tệ</option>
+                    </select>
+                    <br><br>
+                    <textarea placeholder="Nhập đánh giá của bạn..." rows="4"></textarea>
+                    <br><br>
+                    <button id="submitReview">Gửi đánh giá</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="reviewListContainer">
+            @foreach (var item in Model.ListProductRating)
+            {
+                <div class="review-item">
+                    <h4>@item.Customer.Name</h4>
+                    <span class="date">@item.DateRating.ToString()</span>
+                    <div class="stars">
+                        @for (int i = 0; i < item.Rating; i++)
+                        {
+                            @Html.Raw("★")
+                        }
+                    </div>
+                    <p>@item.Comment</p>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="clear30"></div>
+    <h5>Sản phẩm cùng danh mục</h5>
+    <div class="clear30"></div>
+    <div class="watch-grid">
+        @foreach (var item in Model.ListProductSame)
+        {
+            <div class="watch-card">
+                <a href="/ProductStore?id=@item.Product.Id">
+                    <img class="watch-image" src="@item.Product.ImageOutstanding" alt="Orient 1">
+                    <div class="watch-name">@item.Product.Name</div>
+                    <div class="watch-price">@item.Product.SalePrice.Value.ToString("N0") ₫</div>
+                    <div class="watch-rating">⭐ @item.AverageRating • Đã bán @item.SoldQuantity</div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+<div class="clear30"></div>
+@section Scripts {
+    <script>
+           $('#btnAddToCart').on('click', function () {
+                var productId = '@Model.Product.Id';
+                var quantity = parseInt($('#quantityorder').val());
+                var stock = @Model.Stock;
+
+                if (isNaN(quantity) || quantity <= 0) {
+                    alert('Vui lòng nhập số lượng hợp lệ!');
+                    return;
+                }
+
+                if (quantity > stock) {
+                    alert('Số lượng đặt lớn hơn số lượng tồn kho. Vui lòng nhập số lượng nhỏ hơn hoặc bằng ' + stock + '.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/ProductStore/AddToCart',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: quantity
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            alert(res.message);
+                            if(res.cartTotalQuantity !== undefined) {
+                                $('#cart-count').text(res.cartTotalQuantity);
+                            }
+                        } else {
+                            alert('Lỗi: ' + res.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi thêm giỏ hàng!');
+                    }
+                });
+            });
+
+            var isLoggedIn = '@(Context.Session.GetString("UserCustomerName") != null ? "true" : "false")';
+                $('#submitReview').on('click', function (e) {
+            e.preventDefault();
+
+            if (isLoggedIn !== "true") {
+                alert("Bạn cần đăng nhập để gửi đánh giá.");
+                return;
+            }
+
+            var rating = $('#rating').val();
+            var comment = $('textarea').val();
+            var productId = "@Model.Product.Id";
+
+            if (!comment.trim()) {
+                alert("Vui lòng nhập đánh giá của bạn.");
+                return;
+            }
+
+            $.ajax({
+                url: '/ProductStore/SubmitReview',
+                type: 'POST',
+                data: {
+                    rating: rating,
+                    comment: comment,
+                    productId: productId
+                },
+                success: function (res) {
+                    if (res.success) {
+                        alert("Đánh giá đã được gửi!");
+
+                        var stars = '★'.repeat(res.rating);
+                        var html = `
+                            <div class="review-item">
+                                <h4>${res.customerName}</h4>
+                                <span class="date">${res.date}</span>
+                                <div class="stars">${stars}</div>
+                                <p>${res.comment}</p>
+                            </div>
+                        `;
+
+                        $('#reviewListContainer').prepend(html);
+
+                        // Reset form
+                        $('textarea').val('');
+                        $('#rating').val('5');
+                    } else {
+                        alert("Lỗi: " + res.message);
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi gửi đánh giá.");
+                }
+            });
+        });
+        $('.thumbnail-list img').on('click', function() {
+            var newSrc = $(this).attr('src');
+            $('.main-image img').attr('src', newSrc);
+        });
+
+        $('#up').on('click', function() {
+            var quantity = parseInt($('#quantityorder').val());
+            if (!isNaN(quantity)) {
+                $('#quantityorder').val(quantity + 1);
+            } else {
+                $('#quantityorder').val(1);
+            }
+        });
+
+        $('#dow').on('click', function() {
+            var quantity = parseInt($('#quantityorder').val());
+            if (!isNaN(quantity) && quantity > 1) {
+                $('#quantityorder').val(quantity - 1);
+            } else {
+                $('#quantityorder').val(1);
+            }
+        });
+        $('#quantityorder').on('keypress', function(e) {
+            var charCode = e.which ? e.which : e.keyCode;
+
+            if (charCode < 48 || charCode > 57) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}
+

@@ -1,0 +1,55 @@
+﻿@model List<ReportInventoryViewModel>
+
+@{
+    ViewData["Title"] = "Thống kê tồn kho";
+}
+<form method="get" action="/report/ReportInventory">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Sản phẩm</div>
+            <div class="val">
+                <input type="text" class="form-control SelectDate" id="productName" name="productName" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/report/ReportInventory" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="table-container" style="max-height: 78vh !important">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Tổng nhập</th>
+                <th>Tổng xuất</th>
+                <th>Số lượng tồn</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="text-center">@item.ProductName</td>
+                    <td class="text-center">@item.QuantityIn.ToString("N0")</td>
+                    <td class="text-center">@item.QuantityOut.ToString("N0")</td>
+                    <td class="text-center">@item.Inventory.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

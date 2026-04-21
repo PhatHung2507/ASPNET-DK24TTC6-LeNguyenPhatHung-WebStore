@@ -1,0 +1,41 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.AdminWeb>
+
+@{
+    ViewData["Title"] = "Nhân viên";
+}
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Tên nhân viên</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="name" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/system/adminweblist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+@await Component.InvokeAsync("PermissionButtons", new { menuId = "QLNV", modal = "modalAdmin" })
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/System/AdminWebTable.cshtml", Model)
+</div>
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalAdmin" } })
+@section Scripts {
+    <script>
+        $(function() {
+            setupDeleteButton(".btn-delete",".data-row",function($row) {return $row.data("id");},"/system/adminweblist/delete/","/system/adminweblist/partialTableAdminWeb");
+        });
+    </script>
+}

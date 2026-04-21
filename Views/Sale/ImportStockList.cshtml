@@ -1,0 +1,54 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.ImportStockMaster>
+
+@{
+    ViewData["Title"] = "Nhập kho";
+}
+
+<!-- Form tìm kiếm -->
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Từ ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateFrom" value="@ViewData["VoucherDateFrom"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Đến ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateTo" value="@ViewData["VoucherDateTo"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/sale/ImportStocklist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+@await Component.InvokeAsync("PermissionButtons", new { menuId = "NHAPKHO", modal = "modalImportStock" })
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/Sale/ImportStockTable.cshtml", Model)
+</div>
+<!-- Modal -->
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalImportStock" }, { "Widht", "60%" } })
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        $(function () {
+            setupDeleteButton(".btn-delete", ".data-row", function ($row) {
+                return $row.data("id");
+            }, "/sale/ImportStocklist/delete/", "/sale/ImportStocklist/partialTableImportStock");
+        });
+    </script>
+}

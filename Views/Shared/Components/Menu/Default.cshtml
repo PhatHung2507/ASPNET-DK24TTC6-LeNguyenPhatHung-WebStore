@@ -1,0 +1,22 @@
+﻿@using WebStore.Models.Entities
+@model List<MenuCategoryWeb>
+
+@foreach (var category in Model)
+{
+    <ul class="select">
+        <li>
+            <a class="navlink" href="#">
+                <i class="fa @category.IconClass"></i>
+                <b>@category.Name</b>
+            </a>
+            <ul class="sub">
+                @foreach (var item in category.MenuItemWeb.OrderBy(i => i.SortOrder))
+                {
+                    <li>
+                        <a href="@item.Url">@item.Name</a>
+                    </li>
+                }
+            </ul>
+        </li>
+    </ul>
+}

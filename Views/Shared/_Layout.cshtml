@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/Admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/AdminReponsive.css" asp-append-version="true" />
+
+    <!-- Font Awesome -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <div id="headPage">
+        <div>
+            <a id="logo" class="fa fa-bars" style="font-size: 26px; line-height: 32px;"></a>
+            <img id="logo2" src="~/images/logo.png" style="height: 100px; position: absolute; top: -23px; left: 40px;" />
+            <div style="float:right">
+                <a class="fa fa-user" style="line-height: 32px; text-decoration: none;">
+                    <span style="margin-left:5px; font-size:12px;font-family:Arial">@(Context.Session.GetString("UserName"))</span>
+                </a>
+                <a href="/Logout" class="fa fa-sign-out" style="line-height: 32px; text-decoration: none; margin-left: 15px;margin-right:20px">
+                    <span style="margin-left:5px; font-size:12px;font-family:Arial">Thoát</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="navMainMenu">
+        @await Component.InvokeAsync("Menu")
+    </div>
+
+    <div id="adminBody" style="padding: 10px">
+        @RenderBody()
+    </div>
+    <!-- jQuery (load đầu tiên) -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/themes/adaptive.js"></script>
+
+    <!-- Custom JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

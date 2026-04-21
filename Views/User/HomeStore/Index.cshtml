@@ -1,0 +1,75 @@
+﻿@model HomeStoreViewModel
+@{
+    Layout = "_LayoutUser";
+}
+<div class="clear30"></div>
+<div class="banner">
+    <img src="~/images/apple-iphone-15-leak-banner-740x350.jpg" />
+</div>
+<div class="bnf-container-wrapper">
+    <div class="bnf-container">
+        <div class="bnf-box">
+            <div class="bnf-icon">📋</div>
+            <div class="bnf-content">
+                <h4>Mẫu mã đa dạng nhất</h4>
+                <p>Hoàn tiền nếu phát hiện bán hàng giả</p>
+            </div>
+        </div>
+        <div class="bnf-box">
+            <div class="bnf-icon">🚀</div>
+            <div class="bnf-content">
+                <h4>Miễn phí vận chuyển</h4>
+                <p>Giao hàng nhanh, đóng gói cẩn thận</p>
+            </div>
+        </div>
+        <div class="bnf-box">
+            <div class="bnf-icon">💬</div>
+            <div class="bnf-content">
+                <h4>Đổi hàng 7 ngày</h4>
+                <p>1 đổi 1 trong 7 ngày với sản phẩm lỗi</p>
+            </div>
+        </div>
+        <div class="bnf-box">
+            <div class="bnf-icon">✅</div>
+            <div class="bnf-content">
+                <h4>Bảo hành 5 năm</h4>
+                <p>Thủ tục nhanh gọn, thay pin miễn phí</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="wrap-container">
+    <h4 class="title-home">Sản phẩm bán chạy</h4>
+    <div class="clear30"></div>
+    <div class="watch-grid">
+        @foreach (var item in Model.ProductOutstanding)
+        {
+            <div class="watch-card">
+                <a href="/ProductStore?id=@item.Product.Id">
+                    <img class="watch-image" src="@item.Product.ImageOutstanding" alt="Orient 1">
+                    <div class="watch-name">@item.Product.Name</div>
+                    <div class="watch-price">@item.Product.SalePrice.Value.ToString("N0") ₫</div>
+                    <div class="watch-rating">⭐ @item.AverageRating • Đã bán @item.SoldQuantity</div>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="clear30"></div>
+    <h4 class="title-home">Sản phẩm mới</h4>
+    <div class="clear30"></div>
+    <div class="watch-grid">
+        @foreach (var item in Model.ProductBestSelling)
+        {
+            <div class="watch-card">
+                <a href="/ProductStore?id=@item.Product.Id">
+                    <img class="watch-image" src="@item.Product.ImageOutstanding" alt="Orient 1">
+                    <div class="watch-name">@item.Product.Name</div>
+                    <div class="watch-price">@item.Product.SalePrice.Value.ToString("N0") ₫</div>
+                    <div class="watch-rating">⭐ @item.AverageRating • Đã bán @item.SoldQuantity</div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+<div class="clear30"></div>
+<iframe title="Địa chỉ Apple Store" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3922.1126060185006!2d106.4257191!3d10.570360599999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x310ac9917e71fc53%3A0x9eb76382573ef9ec!2zNTk1IFFMMUEsIELDrG5oIFRo4bqhbmgsIExvbmcgQW4sIFTDonkgTmluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1776773725153!5m2!1svi!2s" height="450" style="border: 0;width:100%" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>

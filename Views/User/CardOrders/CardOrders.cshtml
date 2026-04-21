@@ -1,0 +1,160 @@
+﻿@model WebStore.Models.Entities.CartViewModel
+@{
+    Layout = "_LayoutUser";
+}
+
+<div class="clear30"></div>
+<div class="wrap-container">
+    <div class="card-order-container">
+
+        <!-- Giỏ hàng -->
+        <div class="card-order-cart">
+            @if (Model.Items != null && Model.Items.Any())
+            {
+                foreach (var item in Model.Items)
+                {
+                    <div class="card-order-item" data-product-id="@item.ProductId">
+                        <img class="card-order-item__image" src="@item.Image" alt="@item.ProductName" />
+                        <div class="card-order-item__info">
+                            <h3 class="card-order-item__title">@item.ProductName</h3>
+                            <p class="card-order-item__desc">Mã sản phẩm: @item.ProductId</p>
+                            <p class="card-order-item__desc">Giá: @item.Price.ToString("N0")₫</p>
+                            <div class="quantity">
+                                <button class="btn-decrease">-</button>
+                                <input type="text" value="@item.Quantity" class="qty-input" data-product-id="@item.ProductId" />
+                                <button class="btn-increase">+</button>
+                            </div>
+                        </div>
+                        <button class="card-order-item__delete" title="Xóa sản phẩm">🗑</button>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Giỏ hàng đang trống.</p>
+            }
+        </div>
+
+        <!-- Thông tin giao hàng -->
+        <div class="card-order-checkout">
+            <h2 class="card-order-checkout__title">Thông tin giao hàng</h2>
+            <span>Họ tên</span>
+            <div class="card-order-form__group">
+                <input value="@Model.Customer.Name" type="text" disabled />
+            </div>
+            <span>Điện thoại</span>
+            <div class="card-order-form__group">
+                <input value="@Model.Customer.Tel" type="text" disabled />
+            </div>
+            <span>Tỉnh/thành phố</span>
+            <div class="card-order-form__group">
+                <input value="@Model.Customer.Location?.Name" type="text" disabled />
+            </div>
+            <span>Phường/xã</span>
+            <div class="card-order-form__group">
+                <input value="@Model.Customer.Ward?.Name" type="text" disabled />
+            </div>
+            <span>Địa chỉ</span>
+            <div class="card-order-form__group">
+                <input value="@Model.Customer.Address" type="text" disabled />
+            </div>
+            <div class="card-order-summary">
+                <p>Tạm tính: @Model.TotalTemp.ToString("N0") ₫</p>
+                <p>Phí vận chuyển: <strong>30,000 đ</strong></p>
+                <p>Tổng: <strong>@Model.TotalAll.ToString("N0")₫</strong></p>
+            </div>
+
+            <!-- ✅ QR thanh toán đặt ở đây -->
+            <div style="text-align:center; margin:15px 0; padding:15px; border:1px solid #eee; border-radius:10px;">
+                <h4 style="color:#e91e63;">Thanh toán QR</h4>
+                <img src="@ViewBag.QR" width="200" />
+                <p style="font-size:13px;">Quét mã bằng Momo / Banking</p>
+            </div>
+
+            <button id="btn-place-order" class="add-to-cart">Xác nhận đặt hàng</button>
+        </div>
+    </div>
+</div>
+<div class="clear30"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#btn-place-order').click(function () {
+                $.ajax({
+                    url: '/CardOrders/PlaceOrder',
+                    type: 'POST',
+                    success: function (res) {
+                        if (res.success) {
+                            alert('Đặt hàng thành công!');
+                            window.location.href = '/HomeStore/Index'; 
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            });
+
+             // Hàm cập nhật giỏ hàng trong cookie
+            function updateCart(productId, newQuantity) {
+                $.ajax({
+                    url: '/CardOrders/UpdateQuantity',
+                    method: 'POST',
+                    data: { productId: productId, quantity: newQuantity },
+                    success: function (res) {
+                        if (res.success) {
+                            location.reload(); // Reload để cập nhật giá tổng
+                        } else {
+                            alert('Cập nhật thất bại');
+                        }
+                    },
+                    error: function () {
+                        alert('Lỗi khi cập nhật số lượng');
+                    }
+                });
+            }
+
+            // Nút tăng số lượng
+            $('.btn-increase').click(function () {
+                var input = $(this).siblings('.qty-input');
+                var qty = parseInt(input.val());
+                var productId = input.data('product-id');
+                input.val(qty + 1);
+                updateCart(productId, qty + 1);
+            });
+
+            // Nút giảm số lượng
+            $('.btn-decrease').click(function () {
+                var input = $(this).siblings('.qty-input');
+                var qty = parseInt(input.val());
+                var productId = input.data('product-id');
+                if (qty > 1) {
+                    input.val(qty - 1);
+                    updateCart(productId, qty - 1);
+                }
+            });
+
+            // Xóa sản phẩm khỏi giỏ
+            $('.card-order-item__delete').click(function () {
+                var parent = $(this).closest('.card-order-item');
+                var productId = parent.data('product-id');
+                $.post('/CardOrders/RemoveFromCart', { productId: productId }, function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        alert('Xóa thất bại');
+                    }
+                });
+            });
+
+            // Xử lý form đặt hàng (tùy chỉnh backend nếu cần)
+            $('#checkoutForm').submit(function (e) {
+                e.preventDefault();
+                alert('Bạn cần viết thêm xử lý đặt hàng tại controller!');
+            });
+        });
+    </script>
+}

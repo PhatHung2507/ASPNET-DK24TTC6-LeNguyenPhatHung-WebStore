@@ -1,0 +1,54 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.OrdersMaster>
+
+@{
+    ViewData["Title"] = "Đơn hàng";
+}
+
+<!-- Form tìm kiếm -->
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Từ ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateFrom" value="@ViewData["VoucherDateFrom"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Đến ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateTo" value="@ViewData["VoucherDateTo"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/sale/Orderslist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+@await Component.InvokeAsync("PermissionButtons", new { menuId = "DONHANG", modal = "modalOrders" })
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/Sale/OrdersTable.cshtml", Model)
+</div>
+<!-- Modal -->
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalOrders" }, { "Widht", "60%" } })
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        $(function () {
+            setupDeleteButton(".btn-delete", ".data-row", function ($row) {
+                return $row.data("id");
+            }, "/sale/Orderslist/delete/", "/sale/Orderslist/partialTableOrders");
+        });
+    </script>
+}

@@ -1,0 +1,53 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.MenuCategoryWeb>
+
+@{
+    ViewData["Title"] = "Danh mục Menu";
+}
+
+<!-- Form tìm kiếm -->
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Tên danh mục</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="name" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/system/menucategoryweblist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+<!-- Nút chức năng -->
+<div class="MenuContext fl">
+    <button class="btn-open-modal Button btn-insert Button2" data-url="/system/menucategorywebedit" data-target="#modalMenuCategory" data-title="Tạo - Danh mục Menu"><i class="fa fa-plus icon"></i>Tạo</button>
+    <button class="btn-open-modal Button btn-insert Button1" data-url="/system/menucategorywebedit" data-target="#modalMenuCategory" data-title="Cập nhật - Danh mục Menu"><i class="fa fa-plus icon"></i>Cập nhật</button>
+    <button class="Button btn-delete Button4"><i class="fa fa-trash icon"></i>Xóa</button>
+</div>
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/System/MenuCategoryWebTable.cshtml", Model)
+</div>
+<!-- Modal -->
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalMenuCategory" } })
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        $(function () {
+            setupDeleteButton(".btn-delete", ".data-row", function ($row) {
+                return $row.data("id");
+            }, "/system/menucategoryweblist/delete/", "/system/menucategoryweblist/partialTableMenucategoryWeb");
+        });
+    </script>
+}

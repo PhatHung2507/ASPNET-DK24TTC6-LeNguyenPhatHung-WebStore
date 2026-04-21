@@ -1,0 +1,38 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.MenuCategoryWeb>
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Tên</th>
+                <th>Icon</th>
+                <th>Sắp xếp</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td class="text-center">@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.IconClass</td>
+                    <td class="text-center">@item.SortOrder</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@{
+    Model.BaseUrl = "/system/menucategoryweblist/partialTableMenucategoryWeb";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+@await Html.PartialAsync("PaginationPartial", Model)
+
+
+

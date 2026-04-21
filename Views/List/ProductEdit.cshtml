@@ -1,0 +1,186 @@
+﻿@model WebStore.Models.Entities.ProductByCategoryViewModel
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+
+@{
+    Layout = null;
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!-- Quill CSS -->
+    <style>
+        #editor-container {
+            height: auto;
+            background-color: white;
+        }
+
+        .product-image-preview {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .image-wrapper {
+            position: relative;
+            margin: 5px;
+        }
+
+            .image-wrapper img {
+                max-width: 100px;
+                max-height: 100px;
+                border: 1px solid #ccc;
+                padding: 2px;
+            }
+
+        .remove-image-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <form id="formAdmin" method="post" enctype="multipart/form-data" action="/list/productedit">
+                <input type="hidden" name="Id" value="@Model?.Product.Id" />
+                <input type="hidden" id="DeletedImageIds" name="DeletedImageIds" />
+
+                <div class="row col-space-10">
+                    <div class="col-4">
+                        <div class="field-edit">
+                            <span>Mã (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Code" value="@Model?.Product.Code" required />
+                        </div>
+
+                        <div class="field-edit">
+                            <span>Tên (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Name" value="@Model?.Product.Name" required />
+                        </div>
+
+                        <div class="field-edit">
+                            <span>Danh mục (<span class="required-span">*</span>)</span>
+                            <select class="form-control select2 SelectDate" name="ProductCategoryId" required>
+                                <option value=""></option>
+                                @foreach (var category in Model.ProductCategorys)
+                                {
+                                    var selectedAttr = Model.Product.ProductCategoryId == category.Id ? "selected" : "";
+                                    <option value="@category.Id" @selectedAttr>@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field-edit">
+                            <span>Thương hiệu (<span class="required-span">*</span>)</span>
+                            <select class="form-control select2 SelectDate" name="BrandId" required>
+                                <option value=""></option>
+                                @foreach (var brand in Model.Brands)
+                                {
+                                    var selectedAttr = Model.Product.BrandId == brand.Id ? "selected" : "";
+                                    <option value="@brand.Id" @selectedAttr>@brand.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="field-edit">
+                            <span>Giá nhập (<span class="required-span">*</span>)</span>
+                            <input type="number" min="0" class="form-control TextBox" name="PurchasePrice" value="@Model?.Product.PurchasePrice" required />
+                        </div>
+
+                        <div class="field-edit">
+                            <span>Giá bán (<span class="required-span">*</span>)</span>
+                            <input type="number" min="0" class="form-control TextBox" name="SalePrice" value="@Model?.Product.SalePrice" required />
+                        </div>
+
+                        <div class="field-edit">
+                            <span>Ảnh sản phẩm</span>
+                            <input type="file" name="Images" id="Images" class="form-control" multiple />
+                        </div>
+
+                        @if (Model.Product.ProductImage != null && Model.Product.ProductImage.Any())
+                        {
+                            <div class="field-edit">
+                                <span>Ảnh hiện tại</span>
+                                <div class="product-image-preview" id="image-preview">
+                                    @foreach (var img in Model.Product.ProductImage)
+                                    {
+                                        <div class="image-wrapper" data-id="@img.Id">
+                                            <img src="@img.Url" alt="Ảnh sản phẩm" />
+                                            <button type="button" class="remove-image-btn" data-id="@img.Id">×</button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-8">
+                        <div class="field-edit">
+                            <span>Mô tả</span>
+                            <div id="editor-container">@Html.Raw(Model.Product.Description)</div>
+                            <textarea id="ProductDescription" name="Description" style="display:none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            initSelect2('.select2');
+
+            // Quill editor
+            var quill = new Quill('#editor-container', {
+                theme: 'snow'
+            });
+
+            var deletedImageIds = [];
+
+            // Xử lý xoá ảnh
+            $(document).on('click', '.remove-image-btn', function () {
+                var imageId = $(this).data('id');
+                deletedImageIds.push(imageId);
+                $('#DeletedImageIds').val(deletedImageIds.join(','));
+                $(this).closest('.image-wrapper').remove();
+            });
+
+            // Submit form
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                // Gán HTML từ Quill
+                var html = quill.root.innerHTML;
+                $("#ProductDescription").val(html);
+
+                var form = $(this)[0];
+                var formData = new FormData(form);
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/list/productlist/partialTableProduct");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+@media screen and (max-width: 1024px) {
+    .dialog-box {
+        max-height: calc(100vh - 60px);
+    }
+
+    #adminBody {
+        height: calc(100vh - 115px);
+    }
+
+    .page-normal {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 820px) {
+}
+
+@media screen and (max-width: 680px) {
+    #logo2 {
+        display: none;
+    }
+
+    .TabBox > .TabContent {
+        padding: 5px;
+    }
+
+    .dialog-box {
+        min-width: 320px;
+        width: 100%;
+    }
+
+    .dialog-content {
+        padding: 10px;
+    }
+
+    .col-9, .col-3 {
+        width: 100%;
+    }
+
+    .list-main .paging-top {
+        display: none !important;
+    }
+
+    .control-button {
+        margin: 0px;
+    }
+
+    .list-main .paging-bottom {
+        display: block !important;
+    }
+
+    .paging a {
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    .paging .page-info {
+        line-height: 25px;
+        font-size: 12px;
+        padding: 0 5px;
+        display: none;
+    }
+
+    .search-form .Button.fa-search span {
+        display: none;
+    }
+
+    .control-button .Button span {
+        display: none !important;
+    }
+
+    .filter-menu {
+        float: right;
+        margin-top: 10px;
+    }
+
+        .filter-menu .btn-filter-menu {
+            display: block;
+        }
+
+        .filter-menu .search-form {
+            position: fixed;
+            width: 300px;
+            box-shadow: 0 0 5px #ddd;
+            background: white;
+            padding: 10px;
+            z-index: 999;
+            display: none;
+        }
+
+            .filter-menu .search-form .item {
+                display: block;
+                margin-right: 0px;
+            }
+
+        .filter-menu .SelectDate .t-day, .filter-menu .SelectDate .t-month {
+            width: 24px;
+        }
+
+        .filter-menu .SelectDate input {
+            width: 35px;
+        }
+
+        .filter-menu .search-form > .item > .val > * {
+            width: 100%;
+        }
+
+    .edit-page-content {
+        max-height: calc(100vh - 180px);
+    }
+
+    .edit-page {
+        padding-bottom: 80px;
+    }
+
+        .edit-page .save-control-button {
+            bottom: 30px;
+        }
+}
+
+@media screen and (max-width: 500px) {
+}
+
+@media screen and (max-width: 450px) {
+}
+@media (max-width: 768px) {
+    .custom-modal-content {
+        width: 100%
+    }
+}

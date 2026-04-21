@@ -1,0 +1,246 @@
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Reponsive.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .modal-content {
+            border-radius: 10px;
+            padding: 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+
+            .modal-body h4 {
+                font-size: 20px;
+                color: #333;
+            }
+
+        .form-control {
+            border-radius: 6px;
+            font-size : 15px
+        }
+
+        .btn {
+            border-radius: 6px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg main-nav px-0">
+                <a class="navbar-brand" href="/HomeStore">
+                    <img src="~/images/tao-xinh-logo-1.png" alt="omega.com">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="mainMenu">
+                    <ul class="navbar-nav ml-auto text-uppercase f1">
+                            <li><a href="/CategoryProductStore?type=IPHONE">iPhone</a></li>
+                            <li><a href="/CategoryProductStore?type=MAC">Mac</a></li>
+                            <li><a href="/CategoryProductStore?type=IPAD">iPad</a></li>
+                            <li><a href="/CategoryProductStore?type=APPLEWATCH">Apple Watch</a></li>
+                            <li><a href="/CategoryProductStore?type=AIRPODS">Airpods</a></li>
+                        @if (!string.IsNullOrEmpty(Context.Session.GetString("UserCustomerName")))
+                        {
+                            <!-- Đã đăng nhập -->
+                            <li class="nav-item dropdown">
+                                <a class="dropdown-toggle text-primary" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @Context.Session.GetString("UserCustomerName")
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="userDropdown" style="font-size : 13px">
+                                    <a class="dropdown-item" href="/ProfileStore?id=@Context.Session.GetString("UserCustomerId")">Trang cá nhân</a>
+                                    <a class="dropdown-item" href="/OrdersCustomer/Index">Đơn hàng</a>
+                                    <a class="dropdown-item" href="/LoginStore/Logout">Đăng xuất</a>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="text-primary" href="#" data-toggle="modal" data-target="#loginModal">Đăng nhập</a>
+                            </li>
+                        }
+                        <li>
+                            <a href="/Cardorders">
+                                <i class="fa fa-cart-plus cart-icon"></i>
+                                <span id="cart-count" class="badge badge-danger" style="position: relative; top: -10px; left: -5px;">
+                                    @ViewBag.CartQuantity
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div style="padding-top: 60px;">
+        @RenderBody()
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+            <!-- Menu Links -->
+            <div class="footer-section links">
+                <h3>Thông tin</h3>
+                <ul>
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Bộ sưu tập</a></li>
+                    <li><a href="#">Tin tức</a></li>
+                    <li><a href="#">Liên hệ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section links">
+                <h3>Hỗ trợ</h3>
+                <ul>
+                    <li><a href="#">Bảo hành & đổi trả</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Thanh toán & vận chuyển</a></li>
+                    <li><a href="#">Câu hỏi thường gặp</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section links">
+                <h3>Liên hệ</h3>
+                <ul>
+                    <li><a href="#">45B, Lưu Văn Tế, Phường Long An, tỉnh Tây Ninh</a></li>
+                    <li><a href="#">0878404685</a></li>
+                        <li><a href="#">https://www.facebook.com/hung.le.380550</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            &copy; 2026 Apple. All rights reserved.
+        </div>
+    </footer>
+    <!-- Auth Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content rounded shadow-lg border-0">
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <h4 id="modalTitle" class="font-weight-bold text-uppercase">Đăng nhập</h4>
+                    </div>
+
+                    <!-- Alert -->
+                    <div id="authError" class="alert alert-danger d-none text-center py-2"></div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-lg" id="Username" placeholder="Số điện thoại" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control form-control-lg" id="Password" placeholder="Mật khẩu" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">Đăng nhập</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" class="d-none">
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-lg" id="RegUsername" placeholder="Số điện thoại" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-lg" id="CustomerName" placeholder="Tên khách hàng" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control form-control-lg" id="RegPassword" placeholder="Mật khẩu" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control form-control-lg" id="RegConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block btn-lg mt-3">Đăng ký</button>
+                    </form>
+
+                    <!-- Toggle Link -->
+                    <div class="text-center mt-4">
+                        <span id="toggleAuthText">Chưa có tài khoản?</span>
+                        <a href="#" id="toggleAuthLink" class="font-weight-bold">Đăng ký</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Custom JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            // Toggle giữa login và register
+            $('#toggleAuthLink').click(function (e) {
+                e.preventDefault();
+
+                let isLogin = $('#loginForm').is(':visible');
+
+                $('#loginForm, #registerForm').toggleClass('d-none');
+                $('#modalTitle').text(isLogin ? 'Đăng ký' : 'Đăng nhập');
+                $('#toggleAuthText').text(isLogin ? 'Đã có tài khoản?' : 'Chưa có tài khoản?');
+                $('#toggleAuthLink').text(isLogin ? 'Đăng nhập' : 'Đăng ký');
+                $('#authError').addClass('d-none');
+            });
+
+            // Login AJAX
+            $('#loginForm').submit(function (e) {
+                e.preventDefault();
+                $.post('/LoginStore/Login', {
+                    Username: $('#Username').val(),
+                    Password: $('#Password').val()
+                }, function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        $('#authError').removeClass('d-none').text(res.message);
+                    }
+                });
+            });
+
+            // Register AJAX
+            $('#registerForm').submit(function (e) {
+                e.preventDefault();
+                $.post('/LoginStore/Register', {
+                    Username: $('#RegUsername').val(),
+                    CustomerName: $('#CustomerName').val(),
+                    Password: $('#RegPassword').val(),
+                    ConfirmPassword: $('#RegConfirmPassword').val()
+                }, function (res) {
+                    if (res.success) {
+                        alert('Đăng ký thành công! Bạn có thể đăng nhập.');
+                        $('#toggleAuthLink').click(); // quay lại login
+                        $('#registerForm')[0].reset();
+                    } else {
+                        $('#authError').removeClass('d-none').text(res.message);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

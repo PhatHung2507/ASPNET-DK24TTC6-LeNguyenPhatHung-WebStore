@@ -1,0 +1,131 @@
+﻿@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+@using WebStore.Models
+@using WebStore.Models.Entities
+@model WebStore.Models.Entities.CustomerAddressViewModel
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <form id="formAdmin" method="post" action="/list/customeredit">
+                <div class="row col-space-10">
+                    <div class="col-12">
+                        <input type="hidden" name="Id" value="@Model?.Customer.Id" />
+                        <div class="field-edit">
+                            <span>Tên khách hàng (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Name" value="@Model?.Customer.Name" required />
+                        </div>
+                        <div class="field-edit">
+                            <span>Điện thoại</span>
+                            <input type="text" class="form-control TextBox" name="Tel" value="@Model?.Customer.Tel" />
+                        </div>
+                        <div class="field-edit">
+                            <span>Giới tính</span>
+                            <label>
+                                <input type="radio" name="Gender" value="Nam" @(Model?.Customer.Gender == "Nam" ? "checked" : "") /> Nam
+                            </label>
+                            <label style="margin-left: 20px;">
+                                <input type="radio" name="Gender" value="Nữ" @(Model?.Customer.Gender == "Nữ" ? "checked" : "") /> Nữ
+                            </label>
+                        </div>
+                        <div class="field-edit">
+                            <span>Ngày sinh</span>
+                            <input type="date" class="form-control SelectDate" name="BirthDay"
+                                   value="@(Model?.Customer.BirthDay.HasValue == true ? Model.Customer.BirthDay.Value.ToString("yyyy-MM-dd") : "")" />
+                        </div>
+                        <div class="field-edit">
+                            <span>Email</span>
+                            <input type="text" class="form-control TextBox" name="Email" value="@Model?.Customer.Email" />
+                        </div>
+                        <div class="field-edit">
+                            <span>Tỉnh/thành phố</span>
+                            <select class="form-control select2 SelectDate" name="LocationId" id="LocationId">
+                                <option value=""></option>
+                                @foreach (var location in Model.Locations)
+                                {
+                                    var selectedAttr = Model.Customer.LocationId == location.Id ? "selected" : "";
+                                    <option value="@location.Id" @selectedAttr>@location.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field-edit">
+                            <span>Phường/xã</span>
+                            <select class="form-control select2 SelectDate" name="WardId" id="WardId">
+                                <option value=""></option>
+                                @foreach (var ward in Model.Wards)
+                                {
+                                    var selectedAttr = Model.Customer.WardId == ward.Id ? "selected" : "";
+                                    <option value="@ward.Id" data-location-id="@ward.LocationId" @selectedAttr>@ward.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="field-edit">
+                            <span>Số nhà/đường</span>
+                            <input type="text" class="form-control TextBox" name="Address" value="@Model?.Customer.Address" />
+                        </div>
+                        <div class="field-edit">
+                            <span>Ghi chú</span>
+                            <input type="text" class="form-control TextBox" name="Note" value="@Model?.Customer.Note" />
+                        </div>
+                    </div>
+                </div>
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            initSelect2('.select2');
+            $('#LocationId').on('change', function() {
+                var locationId = $(this).val();
+                var wardSelect = $('#WardId');
+
+                // Reset ward dropdown
+                wardSelect.empty().append('<option value="">Chọn phường/xã...</option>');
+                wardSelect.trigger('change.select2');
+
+                if (locationId) {
+                    $.ajax({
+                        url: '@Url.Action("GetWardsByLocation", "CustomerEdit")',
+                        type: 'GET',
+                        data: { locationId: locationId },
+                        success: function(data) {
+                            $.each(data, function(index, ward) {
+                                wardSelect.append('<option value="' + ward.id + '">' + ward.name + '</option>');
+                            });
+                            wardSelect.trigger('change.select2');
+                        }
+                    });
+                }
+            });
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0];                     // DOM element của form
+                var formData = new FormData(form);         // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,                     // Bắt buộc khi dùng FormData
+                    processData: false,                     // Bắt buộc khi dùng FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/list/customerlist/partialTableCustomer");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

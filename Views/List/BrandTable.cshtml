@@ -1,0 +1,32 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.Brand>
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Tên</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td>@item.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@{
+    Model.BaseUrl = "/list/brandlist/partialTableBrand";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+@await Html.PartialAsync("PaginationPartial", Model)
+
+
+

@@ -1,0 +1,56 @@
+﻿@model WebStore.Models.Entities.Brand
+
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <form id="formAdmin" method="post" action="/list/brandedit">
+                <div class="row col-space-10">
+                    <div class="col-12">
+                        <input type="hidden" name="Id" value="@Model?.Id" />
+                        <div class="field-edit">
+                            <span>Tên thương hiệu (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Name" value="@Model?.Name" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+            $(function () {
+            // Xử lý submit form bằng ajax
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; // Lấy DOM element form
+                var formData = new FormData(form); // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,  // Bắt buộc cho FormData
+                    processData: false,  // Bắt buộc cho FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/list/brandlist/partialTableBrand");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

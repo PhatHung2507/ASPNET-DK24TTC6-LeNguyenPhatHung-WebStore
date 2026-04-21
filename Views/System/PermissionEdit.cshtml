@@ -1,0 +1,110 @@
+﻿@model WebStore.Models.Entities.Permission
+@{
+    var permissionMenus = ViewBag.MenuPermissions as List<PermissionMenuViewModel>;
+}
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <form id="formAdmin" method="post" action="/system/permissionedit">
+                <div class="row col-space-10">
+                    <div class="col-12">
+                        <input type="hidden" name="Id" value="@Model?.Id" />
+                        <div class="field-edit">
+                            <span>Tên nhóm (<span class="required-span">*</span>)</span>
+                            <input type="text" class="form-control TextBox" name="Name" value="@Model?.Name" required />
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    @foreach (var category in permissionMenus)
+                    {
+                        <div class="permission-menu-section">
+                            <div class="permission-menu-title">@category.CategoryName</div>
+                            <table>
+                                @foreach (var item in category.Items)
+                                {
+                                    <tr>
+                                        <td style="width : 250px"><span class="permission-menu-label">@item.Name</span></td>
+                                        <td>
+                                            <div class="permission-menu-actions">
+                                                @if (item.HasSee)
+                                                {
+                                                    <label>
+                                                        <input type="checkbox" name="Permissions[@item.Id].See" @(item.IsSeeChecked ? "checked" : "") />
+                                                        Xem
+                                                    </label>
+                                                }
+                                                @if (item.HasNew)
+                                                {
+                                                    <label>
+                                                        <input type="checkbox" name="Permissions[@item.Id].New" @(item.IsNewChecked ? "checked" : "") />
+                                                        Thêm
+                                                    </label>
+                                                }
+                                                @if (item.HasEdit)
+                                                {
+                                                    <label>
+                                                        <input type="checkbox" name="Permissions[@item.Id].Edit" @(item.IsEditChecked ? "checked" : "") />
+                                                        Sửa
+                                                    </label>
+                                                }
+                                                @if (item.HasRemove)
+                                                {
+                                                    <label>
+                                                        <input type="checkbox" name="Permissions[@item.Id].Remove" @(item.IsRemoveChecked ? "checked" : "") />
+                                                        Xóa
+                                                    </label>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    }
+                </div>
+                <div class="save-control-button">
+                    <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                    <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+            $(function () {
+            // Đóng modal khi bấm nút Đóng
+            $("#btnClose").click(function () {
+                $(".custom-modal").hide();
+            });
+
+            // Xử lý submit form bằng ajax
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; // Lấy DOM element form
+                var formData = new FormData(form); // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,  // Bắt buộc cho FormData
+                    processData: false,  // Bắt buộc cho FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/system/permissionlist/partialTablePermission");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

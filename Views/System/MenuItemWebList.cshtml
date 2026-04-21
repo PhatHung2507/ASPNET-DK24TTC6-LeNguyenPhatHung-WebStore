@@ -1,0 +1,54 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.MenuItemWeb>
+
+
+@{
+    ViewData["Title"] = "Danh mục Menu";
+}
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Tên Menu</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="name" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Danh mục</div>
+            <div class="val">
+                <select class="form-control select2 SelectBox" name="CategoryId" asp-items="ViewBag.MenuCategoryList">
+                    <option value="">-- Tất cả danh mục --</option>
+                </select>
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/system/menuitemweblist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+<div class="MenuContext fl">
+    <button class="btn-open-modal Button btn-insert Button2" data-url="/system/menuitemwebedit" data-target="#modalMenuItem" data-title="Tạo - Menu"><i class="fa fa-plus icon"></i>Tạo</button>
+    <button class="btn-open-modal Button btn-insert Button1" data-url="/system/menuitemwebedit" data-target="#modalMenuItem"  data-title="Cập nhật - Menu"><i class="fa fa-plus icon"></i>Cập nhật</button>
+    <button class="Button btn-delete Button4"><i class="fa fa-trash icon"></i>Xóa</button>
+</div>
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/System/MenuItemWebTable.cshtml", Model)
+</div>
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalMenuItem" } })
+@section Scripts {
+    <script>
+        $(function() {
+            setupDeleteButton(".btn-delete",".data-row",function($row) {return $row.data("id");},"/system/menuitemweblist/delete/","/system/menuitemweblist/partialTableMenuitemWeb");
+        });
+    </script>
+}

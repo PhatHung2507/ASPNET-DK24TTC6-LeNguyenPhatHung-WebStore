@@ -1,0 +1,62 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.Product>
+
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<!-- Form tìm kiếm -->
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Mã</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="code" value="@ViewData["SearchCode"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Tên</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="name" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Danh mục</div>
+            <div class="val">
+                <select class="form-control select2 SelectBox" name="ProductCategoryId" asp-items="ViewBag.ProductCategoryList">
+                    <option value="">-- Tất cả danh mục --</option>
+                </select>
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/list/productlist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+@await Component.InvokeAsync("PermissionButtons", new { menuId = "SANPHAM", modal = "modalProduct" })
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/List/ProductTable.cshtml", Model)
+</div>
+<!-- Modal -->
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) { { "ModalId", "modalProduct" }, { "Widht", "80%" } })
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        $(function () {
+            setupDeleteButton(".btn-delete", ".data-row", function ($row) {
+                return $row.data("id");
+            }, "/list/productlist/delete/", "/list/productlist/partialTableProduct");
+        });
+    </script>
+}

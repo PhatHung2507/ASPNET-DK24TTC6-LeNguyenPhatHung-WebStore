@@ -1,0 +1,211 @@
+﻿@model ReportOverviewViewModel
+@using System.Text.Json
+@{
+    var chartDates = JsonSerializer.Serialize(Model.ChartDataByDate.Select(x => x.Date));
+    var chartOrders = JsonSerializer.Serialize(Model.ChartDataByDate.Select(x => x.CountOrders));
+    var chartProducts = JsonSerializer.Serialize(Model.ChartDataByDate.Select(x => x.CountProducts));
+    var chartCustomers = JsonSerializer.Serialize(Model.ChartDataByDate.Select(x => x.CountCustomers));
+    var chartRevenue = JsonSerializer.Serialize(Model.ChartDataByDate.Select(x => x.Revenue));
+}
+@{
+    ViewData["Title"] = "Báo cáo tổng quan";
+}
+<style>
+    .highcharts-figure,
+    .highcharts-data-table table {
+        min-width: 310px;
+        max-width: 800px;
+        margin: 1em auto;
+    }
+
+    #container {
+        height: 400px;
+    }
+
+    .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid var(--highcharts-neutral-color-10, #e6e6e6);
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: var(--highcharts-neutral-color-60, #666);
+    }
+
+    .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+    }
+
+    .highcharts-data-table td,
+    .highcharts-data-table th,
+    .highcharts-data-table caption {
+        padding: 0.5em;
+    }
+
+    .highcharts-data-table thead tr,
+    .highcharts-data-table tbody tr:nth-child(even) {
+        background: var(--highcharts-neutral-color-3, #f7f7f7);
+    }
+
+    .highcharts-description {
+        margin: 0.3rem 10px;
+    }
+</style>
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Từ ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateFrom" value="@ViewData["DateFrom"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name">Đến ngày</div>
+            <div class="val">
+                <input type="date" class="form-control TextBox" name="voucherDateTo" value="@ViewData["DateTo"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/Home/Index" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="table-container" style="max-height: 78vh !important">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Doanh thu</th>
+                <th>Số đơn</th>
+                <th>Số sản phẩm</th>
+                <th>Số khách</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center">@Model.Revenue.ToString("N0")</td>
+                <td class="text-center">@Model.CountOrder.ToString("N0")</td>
+                <td class="text-center">@Model.CountProduct.ToString("N0")</td>
+                <td class="text-center">@Model.CountCustomer.ToString("N0")</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<figure class="highcharts-figure">
+    <div id="container"></div>
+</figure>
+<div class="clear20">
+</div>
+<figure class="highcharts-figure">
+    <div id="container2"></div>
+</figure>
+@section Scripts {
+    <script>
+        const dates = @Html.Raw(chartDates);
+        const orders = @Html.Raw(chartOrders);
+        const products = @Html.Raw(chartProducts);
+        const customers = @Html.Raw(chartCustomers);
+        const revenue = @Html.Raw(chartRevenue);
+
+        Highcharts.chart('container', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Thống kê số lượng'
+            },
+            xAxis: {
+                categories: dates,
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                allowDecimals: false,
+                title: {
+                    text: 'Số lượng'
+                }
+            },
+            tooltip: {
+                shared: true
+            },
+            series: [
+                {
+                    name: 'Số lượng đơn',
+                    data: orders
+                },
+                {
+                    name: 'Số lượng sản phẩm',
+                    data: products
+                },
+                {
+                    name: 'Số lượng khách hàng',
+                    data: customers
+                }
+            ]
+        });
+
+
+        Highcharts.chart('container2', {
+
+            title: {
+                text: 'Thống kê doanh thu',
+            },
+            yAxis: {
+                title: {
+                    text: 'Doanh thu'
+                }
+            },
+
+            xAxis: {
+                categories: dates,
+            },
+
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            series: [{
+                name: 'Doanh thu',
+                data: revenue
+            }],
+
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+
+        });
+    </script>
+}

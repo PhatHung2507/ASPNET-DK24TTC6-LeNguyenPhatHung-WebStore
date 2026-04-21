@@ -1,0 +1,50 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.OrdersMaster>
+
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Loại đơn</th>
+                <th>Ngày bán</th>
+                <th>Khách hàng</th>
+                <th>Tổng số lượng</th>
+                <th>Cần thanh toán</th>
+                <th>Khách trả</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td class="text-center">@item.Source</td>
+                    <td class="text-center">@item.VoucherDate?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Customer?.Name</td>
+                    <td class="text-center">@item.TotalQuantity?.ToString("N0")</td>
+                    <td class="text-center">@item.NeedPayment?.ToString("N0")</td>
+                    <td class="text-center">@item.CustomerPayment?.ToString("N0")</td>
+                    <td class="text-center">@item.Status</td>
+                    <td class="text-center"><a target="_blank" href="@Url.Action("Print", "OrdersList", new { orderId = item.Id })">In phiếu</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@{
+    Model.BaseUrl = "/sale/OrdersMasterlist/partialTableImportStockMaster";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+
+@await Html.PartialAsync("PaginationPartial", Model)

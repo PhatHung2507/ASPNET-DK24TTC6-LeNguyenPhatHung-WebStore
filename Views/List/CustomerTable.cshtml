@@ -1,0 +1,38 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.Customer>
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Tên</th>
+                <th>Điện thoại</th>
+                <th>Giới tính</th>
+                <th>Ngày sinh</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td>@item.Name</td>
+                    <td class="text-center">@item.Tel</td>
+                    <td class="text-center">@item.Gender</td>
+                    <td class="text-center">@item.BirthDay?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@{
+    Model.BaseUrl = "/list/customerlist/partialTableCustomer";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+@await Html.PartialAsync("PaginationPartial", Model)
+
+
+

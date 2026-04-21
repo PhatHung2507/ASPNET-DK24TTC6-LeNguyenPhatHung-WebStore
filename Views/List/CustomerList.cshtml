@@ -1,0 +1,48 @@
+﻿@using WebStore.Models.Entities
+@model WebStore.Models.PageViewModel<WebStore.Models.Entities.Customer>
+
+@{
+    ViewData["Title"] = "Khách hàng";
+}
+
+<!-- Form tìm kiếm -->
+<form method="get">
+    <div class="search-form">
+        <div class="item">
+            <div class="name">Tên khách hàng</div>
+            <div class="val">
+                <input type="text" class="form-control TextBox" name="name" value="@ViewData["SearchName"]" />
+            </div>
+        </div>
+        <div class="item">
+            <div class="name"></div>
+            <div class="val">
+                <button class="Button" type="submit">
+                    <i class="fa fa-search icon"></i>Lọc dữ liệu
+                </button>
+                <a href="/list/customerlist" class="Button">
+                    <i class="fa fa-refresh icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="clear10"></div>
+@await Component.InvokeAsync("PermissionButtons", new { menuId = "KHACHHANG", modal = "modalCustomer" })
+<div class="clear10"></div>
+<div id="dataTableContainer">
+    @await Html.PartialAsync("~/Views/List/CustomerTable.cshtml", Model)
+</div>
+<!-- Modal -->
+@await Html.PartialAsync("ShowFormPartial", Model, new ViewDataDictionary(ViewData) {{ "ModalId", "modalCustomer" }})
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        $(function () {
+            setupDeleteButton(".btn-delete", ".data-row", function ($row) {
+                return $row.data("id");
+            }, "/list/customerlist/delete/", "/list/customerlist/partialTableCustomer");
+        });
+    </script>
+}

@@ -1,0 +1,38 @@
+﻿@model WebStore.Models.PageViewModel<WebStore.Models.Entities.ImportStockMaster>
+<div class="table-container">
+    <table class="data-table">
+        <colgroup>
+            <col>
+            <col>
+            <col>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Ngày nhập</th>
+                <th>Nhà cung cấp</th>
+                <th>Tổng tiền nhập</th>
+                <th>Tổng hàng nhập</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="data-row" data-id="@item.Id">
+                    <td class="text-center">@item.VoucherDate?.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Supplier?.Name</td>
+                    <td class="text-center">@item.TotalMoney?.ToString("N0")</td>
+                    <td class="text-center">@item.TotalQuantity?.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@{
+    Model.BaseUrl = "/sale/ImportStockMasterlist/partialTableImportStockMaster";
+    Model.ReloadFunctionName = "reloadAdminTable";
+}
+@await Html.PartialAsync("PaginationPartial", Model)
+
+
+

@@ -1,0 +1,377 @@
+﻿@model WebStore.Models.Entities.OrdersMasterViewModel
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+    <div class="edit-page">
+        <div class="edit-page-content">
+            <div class="row">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="field-edit">
+                                <span>Sản phẩm (<span class="required-span">*</span>)</span>
+                                <select id="productSelect" class="form-control select2 SelectDate" name="productId" required>
+                                    <option value=""></option>
+                                    @foreach (var sub in Model.Products)
+                                    {
+                                        <option value="@sub.Id">@sub.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="field-edit">
+                                <span>Giá bán (<span class="required-span">*</span>)</span>
+                                <input type="number" min="0" class="form-control TextBox" name="price" id="price" required />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="field-edit">
+                                <span>Số lượng bán (<span class="required-span">*</span>)</span>
+                                <input type="number" min="0" class="form-control TextBox" name="quantity" id="quantity" required />
+                            </div>
+                        </div>
+                        <div class="field-edit">
+                            <button type="button" class="Button2" id="btnCreateProduct"><i class="fa fa-plus"></i> Thêm sản phẩm</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Giá bán</th>
+                                <th>Thành tiền</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyProduct">
+                            @foreach (var item in Model.OrdersDetails)
+                            {
+                                <tr class="data-row" data-id="@item.Id">
+                                    <td>@item.Product?.Name</td>
+                                    <td class="text-center">@item.Quantity?.ToString("N0")</td>
+                                    <td class="text-center">@item.Price?.ToString("N0")</td>
+                                    <td class="text-center">@item.TotalMoney?.ToString("N0")</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btnDeleteRow" data-id="@item.Id" title="Xóa">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clear20"></div>
+                <form id="formAdmin" method="post" action="/sale/Ordersedit">
+                    <input type="hidden" name="Id" id="id" value="@Model?.OrdersMaster.Id" />
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Ngày bán (<span class="required-span">*</span>)</span>
+                                <input type="date" class="form-control SelectDate" name="VoucherDate" id="voucherDate"
+                                       value="@(Model?.OrdersMaster.VoucherDate.HasValue == true ? Model.OrdersMaster.VoucherDate.Value.ToString("yyyy-MM-dd") : "")" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Nguồn đơn hàng (<span class="required-span">*</span>)</span>
+                                <select class="form-control select2 SelectDate" name="Source" id="Source" required>
+                                    <option value="" @(Model?.OrdersMaster.Source == null ? "selected" : "")></option>
+                                    <option value="Website" @(Model?.OrdersMaster.Source == "Website" ? "selected" : "")>Website</option>
+                                    <option value="Facebook" @(Model?.OrdersMaster.Source == "Facebook" ? "selected" : "")>Facebook</option>
+                                    <option value="Zalo" @(Model?.OrdersMaster.Source == "Zalo" ? "selected" : "")>Zalo</option>
+                                    <option value="Cửa hàng" @(Model?.OrdersMaster.Source == "Cửa hàng" ? "selected" : "")>Cửa hàng</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Khách hàng</span>
+                                <select class="form-control select2 SelectDate" name="CustomerId" id="cusId">
+                                    <option value=""></option>
+                                    @foreach (var cus in Model.Customers)
+                                    {
+                                        var selectedAttr = Model.OrdersMaster.CustomerId == cus.Id ? "selected" : "";
+                                        <option value="@cus.Id" @selectedAttr>@cus.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <div class="field-group">
+                                    <input type="checkbox" name="IsDiscountPercent" id="IsDiscountPercent" value="true" @(Model?.OrdersMaster.IsDiscountPercent == true ? "checked" : "") />
+                                    <label>Giảm giá theo %</label>
+                                </div>
+                                <div class="field-group">
+                                    <input type="checkbox" name="IsDiscountMoney" id="IsDiscountMoney" value="true" @(Model?.OrdersMaster.IsDiscountMoney == true ? "checked" : "") />
+                                    <label>Giảm giá theo tiền</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Nhập % giảm</span>
+                                <input type="number" min="0" disabled class="form-control TextBox" name="DiscountPercent" id="DiscountPercent" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Nhập số tiền giảm</span>
+                                <input type="number" min="0" disabled class="form-control TextBox" name="DiscountMoney" id="DiscountMoney" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Tổng số lượng</span>
+                                <input type="number" min="0" readonly class="form-control TextBox" value="@Model?.OrdersMaster.TotalQuantity" name="TotalQuantity" id="TotalQuantity" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Tổng tiền</span>
+                                <input type="number" min="0" readonly class="form-control TextBox" value="@Model?.OrdersMaster.TotalMoney" name="TotalMoney" id="TotalMoney" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Tổng chiết khấu</span>
+                                <input type="number" min="0" class="form-control TextBox" value="@Model?.OrdersMaster.TotalDiscount" name="TotalDiscount" id="TotalDiscount" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Phí vận chuyển</span>
+                                <input type="number" min="0" class="form-control TextBox" value="@Model?.OrdersMaster.MoneyShip" name="MoneyShip" id="MoneyShip" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Cần thanh toán</span>
+                                <input type="number" min="0" readonly class="form-control TextBox" value="@Model?.OrdersMaster.NeedPayment" name="NeedPayment" id="NeedPayment" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="field-edit">
+                                <span>Khách trả</span>
+                                <input type="number" min="0" class="form-control TextBox" value="@Model?.OrdersMaster.CustomerPayment" name="CustomerPayment" id="CustomerPayment" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-edit">
+                        <span>Ghi chú</span>
+                        <input type="text" class="form-control TextBox" value="@Model?.OrdersMaster.Note" name="Note" id="Note" />
+                    </div>
+                    <div class="save-control-button">
+                        <button type="submit" class="Button2"><i class="fa fa-save icon"></i>Lưu</button>
+                        <button type="button" class="Button4" id="btnClose"><i class="fa fa-remove icon"></i>Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+            $(function () {
+             initSelect2('.select2');
+             function updateTotalDiscountAndNeedPayment() {
+                let totalMoney = parseFloat($('#TotalMoney').val()) || 0;
+                let discountPercent = parseFloat($('#DiscountPercent').val()) || 0;
+                let discountMoney = parseFloat($('#DiscountMoney').val()) || 0;
+                let shipFee = parseFloat($('#MoneyShip').val()) || 0;
+
+                let totalDiscount = 0;
+
+                if ($('#IsDiscountPercent').is(':checked')) {
+                    totalDiscount = totalMoney * (discountPercent / 100);
+                } else if ($('#IsDiscountMoney').is(':checked')) {
+                    totalDiscount = discountMoney;
+                }
+
+                let needPayment = totalMoney - totalDiscount + shipFee;
+
+                $('#TotalDiscount').val(totalDiscount.toFixed(0));
+                $('#NeedPayment').val(needPayment.toFixed(0));
+            }
+
+            // Chỉ được chọn một trong hai checkbox
+            $('#IsDiscountPercent').change(function () {
+                if (this.checked) {
+                    $('#IsDiscountMoney').prop('checked', false);
+                    $('#DiscountPercent').prop('disabled', false);
+                    $('#DiscountMoney').prop('disabled', true).val(0);
+                } else {
+                    $('#DiscountPercent').prop('disabled', true).val(0);
+                }
+                updateTotalDiscountAndNeedPayment();
+            });
+
+            $('#IsDiscountMoney').change(function () {
+                if (this.checked) {
+                    $('#IsDiscountPercent').prop('checked', false);
+                    $('#DiscountMoney').prop('disabled', false);
+                    $('#DiscountPercent').prop('disabled', true).val(0);
+                } else {
+                    $('#DiscountMoney').prop('disabled', true).val(0);
+                }
+                updateTotalDiscountAndNeedPayment();
+            });
+
+            // Tự động tính toán khi thay đổi giá trị
+            $('#DiscountPercent, #DiscountMoney, #TotalMoney, #MoneyShip').on('input', function () {
+                updateTotalDiscountAndNeedPayment();
+            });
+             $('#productSelect').on('change', function () {
+                var productId = $(this).val();
+                if (productId) {
+                    $.ajax({
+                        url: '/sale/OrdersEdit/LoadPriceProduct',
+                        type: 'GET',
+                        data: { id: productId },
+                        success: function (response) {
+                            console.log(response)
+                            $('#price').val(response.price);
+                        },
+                        error: function () {
+                            alert("Không lấy được giá sản phẩm.");
+                        }
+                    });
+                } else {
+                    $('#price').val('');
+                }
+            });
+            function recalculateTotalsFromTable() {
+                let totalQuantity = 0;
+                let totalMoney = 0;
+
+                $('#bodyProduct tr').each(function () {
+                    let quantity = parseFloat($(this).find('td:nth-child(2)').text().replace(/,/g, '')) || 0;
+                    let price = parseFloat($(this).find('td:nth-child(3)').text().replace(/,/g, '')) || 0;
+
+                    totalQuantity += quantity;
+                    totalMoney += quantity * price;
+                });
+
+                $('#TotalQuantity').val(totalQuantity);
+                $('#TotalMoney').val(totalMoney.toFixed(0));
+
+                // Gọi lại hàm tính chiết khấu và cần thanh toán
+                updateTotalDiscountAndNeedPayment();
+            }
+
+             $('#btnCreateProduct').on('click', function () {
+                var productId = $('#productSelect').val();
+                var quantity = $('#quantity').val();
+                var idMaster = $('#id').val();
+                var voucherDate = $('#voucherDate').val();
+                var cusId = $('#cusId').val();
+                var priceInput = $('#price').val();
+                if (!productId) {
+                    alert("Vui lòng chọn sản phẩm");
+                    return;
+                }
+                if (!quantity) {
+                    alert("Vui lòng chọn số lượng");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/sale/OrdersEdit/AddProduct', // Route đến controller
+                    type: 'POST',
+                    data: { productId: productId, quantity : quantity,idMaster : idMaster, voucherDate : voucherDate, cusId : cusId,priceInput : priceInput},
+                    success: function (response) {
+                        reloadAdminTable("/sale/Orderslist/partialTableOrders");
+                        // Chèn hàng mới vào bảng
+                        $('#bodyProduct').append(`
+                            <tr>
+                                <td>${response.productName}</td>
+                                <td class="text-center">${response.quantity}</td>
+                                <td class="text-center">${response.price}</td>
+                                <td class="text-center">${response.money}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btnDeleteRow" data-id="${response.iddetail}" title="Xóa">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        $('#id').val(response.idOrdersMasterId);
+                        recalculateTotalsFromTable();
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 409) {
+                            alert(xhr.responseText); // Hiển thị nội dung thông báo lỗi từ server
+                        } else {
+                            alert("Đã xảy ra lỗi khi thêm sản phẩm");
+                        }
+                    }
+                });
+            });
+
+        $(document).off('click', '.btnDeleteRow').on('click', '.btnDeleteRow', function () {
+            var button = $(this);
+            var id = button.data('id');
+
+            if (!id) {
+                // Nếu không có id (chưa lưu DB), chỉ cần xóa trên giao diện
+                button.closest('tr').remove();
+                recalculateTotalsFromTable();
+                return;
+            }
+
+            if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+                $.ajax({
+                    url: '/sale/OrdersEdit/DeleteProduct',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        button.closest('tr').remove();
+                        recalculateTotalsFromTable();
+                        reloadAdminTable("/sale/Orderslist/partialTableOrders");
+                    },
+                    error: function () {
+                        alert("Xóa thất bại!");
+                    }
+                });
+            }
+        });
+
+            // Xử lý submit form bằng ajax
+            $("#formAdmin").submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; // Lấy DOM element form
+                var formData = new FormData(form); // Tạo FormData từ form
+
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: formData,
+                    contentType: false,  // Bắt buộc cho FormData
+                    processData: false,  // Bắt buộc cho FormData
+                    success: function (response) {
+                        $(".custom-modal").hide();
+                        reloadAdminTable("/sale/Orderslist/partialTableOrders");
+                    },
+                    error: function () {
+                        alert("Lỗi khi lưu dữ liệu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+﻿@{
+    var modalId = ViewData["ModalId"]?.ToString() ?? "";
+    var width = ViewData["Widht"]?.ToString() ?? "40%;";
+}
+
+<div class="custom-modal" id="@modalId" style="display:none;">
+    <div class="custom-modal-content" style="@($"width:{width}")">
+        <div class="custom-modal-header">
+            <span class="custom-modal-title" id="@($"{modalId}_title")">Tiêu đề</span>
+            <span class="custom-modal-close" data-target="#@modalId">&times;</span>
+        </div>
+        <div class="custom-modal-body" id="@($"{modalId}_body")">
+        </div>
+    </div>
+</div>

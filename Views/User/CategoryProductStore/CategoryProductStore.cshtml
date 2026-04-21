@@ -1,0 +1,153 @@
+﻿@model List<WebStore.Models.Entities.ProductViewModel>
+@{
+    Layout = "_LayoutUser";
+}
+
+<div class="clear30"></div>
+<div class="banner-category">
+    <img src="~/images/banner.jpg" />
+</div>
+<div class="clear30"></div>
+<div class="wrap-container">
+    <h4 class="title-home">@ViewBag.Tile</h4>
+    <div class="clear20"></div>
+    <div class="cate-container cate-top">
+        <div class="cate-buttons">
+            <button class="cate-button" id="sortdesc">
+                <i class="fa fa-sort-amount-desc"></i>
+                Giá giảm dần
+            </button>
+            <button class="cate-button" id="sortasc">
+                <i class="fa fa-sort-amount-asc"></i>
+                Giá tăng dần
+            </button>
+        </div>
+
+        <div class="filter-group">
+            <input type="number" min="0" placeholder="Từ giá" class="price-input" id="minPrice" />
+            <span class="dash">–</span>
+            <input type="number" min="0" placeholder="Đến giá" class="price-input" id="maxPrice" />
+            <button class="filter-btn" id="filterPriceBtn">Lọc theo giá</button>
+        </div>
+    </div>
+    <div class="clear10"></div>
+    <div class="watch-grid">
+        @foreach (var item in Model)
+        {
+            <div class="watch-card">
+                <a href="/ProductStore?id=@item.Product.Id">
+                    <img class="watch-image" src="@item.Product.ImageOutstanding" alt="Orient 1">
+                    <div class="watch-name">@item.Product.Name</div>
+                    <div class="watch-price">@item.Product.SalePrice.Value.ToString("N0") ₫</div>
+                    <div class="watch-rating">⭐ @item.AverageRating • Đã bán @item.SoldQuantity</div>
+                </a>
+                @* <div class="watch-price">10.408.000 ₫ <span class="watch-old-price">13.010.000₫</span> <span class="watch-discount">-20%</span></div>
+                <div class="watch-rating">⭐ 4.94 • Đã bán 271</div>*@
+                @* <div class="watch-compare">+ Thêm giỏ hàng</div> *@
+            </div>
+        }
+    </div>
+    <div class="clear30"></div>
+</div>
+@section Scripts {
+    <script>
+            function loadProducts(sortOrder) {
+            $.ajax({
+                url: '/CategoryProductStore/SortProductsJson',
+                type: 'GET',
+                data: {
+                    sortOrder: sortOrder,
+                    type: new URLSearchParams(window.location.search).get("type") // Lấy từ URL thay vì Razor
+                },
+                success: function (data) {
+                    var html = '';
+
+                    if (data.length === 0) {
+                        html = '<div class="no-products">Không có sản phẩm nào.</div>';
+                    } else {
+                        $.each(data, function (i, p) {
+                            var image = p.imageOutstanding || "/images/no-image.png"; // fallback nếu null
+                            var rating = p.averageRating?.toFixed(1) || "0.0";
+                            var price = Number(p.salePrice || 0).toLocaleString('vi-VN');
+                            var sold = p.soldQuantity || 0;
+
+                            html += `
+                                <div class="watch-card">
+                                    <a href="/ProductStore?id=${p.id}">
+                                        <img class="watch-image" src="${image}" alt="${p.name}">
+                                        <div class="watch-name">${p.name}</div>
+                                        <div class="watch-price">${price} ₫</div>
+                                        <div class="watch-rating">⭐ ${rating} • Đã bán ${sold}</div>
+                                    </a>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    $('.watch-grid').html(html);
+                },
+                error: function () {
+                    alert("Lỗi khi tải sản phẩm.");
+                }
+            });
+        }
+
+        $('#sortdesc').on('click', function () {
+            loadProducts('desc');
+        });
+
+        $('#sortasc').on('click', function () {
+            loadProducts('asc');
+        });
+
+                $('#filterPriceBtn').on('click', function () {
+            const min = parseFloat($('#minPrice').val()) || 0;
+            const max = parseFloat($('#maxPrice').val()) || 1000000000;
+
+            if (min > max) {
+                alert("Giá tối thiểu không được lớn hơn giá tối đa!");
+                return;
+            }
+
+                    $.ajax({
+            url: '/CategoryProductStore/FilterByPrice',
+            type: 'GET',
+            data: {
+                minPrice: min,
+                maxPrice: max,
+                type: new URLSearchParams(window.location.search).get("type")
+            },
+            success: function (data) {
+                let html = '';
+
+                if (data.length === 0) {
+                    html = '<div class="no-products">Không có sản phẩm nào.</div>';
+                } else {
+                    $.each(data, function (i, p) {
+                        const image = p.imageOutstanding || "/images/no-image.png";
+                        const rating = p.averageRating?.toFixed(1) || "0.0";
+                        const sold = p.soldQuantity || 0;
+                        const price = Number(p.salePrice || 0).toLocaleString('vi-VN');
+
+                        html += `
+                            <div class="watch-card">
+                                <a href="/ProductStore?id=${p.id}">
+                                    <img class="watch-image" src="${image}" alt="${p.name}">
+                                    <div class="watch-name">${p.name}</div>
+                                    <div class="watch-price">${price} ₫</div>
+                                    <div class="watch-rating">⭐ ${rating} • Đã bán ${sold}</div>
+                                </a>
+                            </div>
+                        `;
+                    });
+                }
+
+                $('.watch-grid').html(html);
+            },
+            error: function () {
+                alert("Lỗi khi lọc sản phẩm theo giá.");
+            }
+        });
+        });
+    </script>
+}
